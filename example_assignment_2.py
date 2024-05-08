@@ -16,5 +16,5 @@ torch.onnx.export(
 )
 
 # Send the model to the server
-response = requests.post("http://http://35.184.239.3:9090/stealing", files={"file": open("out/models/dummy_submission.onnx", "rb")}, headers={"token": "TOKEN", "seed": "SEED"})
+response = requests.post("http://35.184.239.3:9090/stealing", files={"file": open("out/models/dummy_submission.onnx", "rb")}, headers={"token": "TOKEN", "seed": "SEED"})
 print(response.json())
