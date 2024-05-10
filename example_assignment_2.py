@@ -1,6 +1,8 @@
 import requests
 import torch
 import torch.nn as nn
+import onnxruntime as ort
+import numpy as np
 
 #### SUBMISSION ####
 
@@ -14,6 +16,22 @@ torch.onnx.export(
     export_params=True,
     input_names=["x"],
 )
+
+#### Tests ####
+
+# (these are being ran on the eval endpoint for every submission)
+
+try:
+    stolen_model = ort.InferenceSession(model)
+except Exception as e:
+    raise Exception(f"Invalid model, {e=}")
+try:
+    out = stolen_model.run(
+        None, {"x": np.random.randn(1, 3, 32, 32).astype(np.float32)}
+    )[0][0]
+except Exception as e:
+    raise Exception(f"Some issue with the input, {e=}")
+assert out.shape == (1024,), "Invalid output shape"
 
 # Send the model to the server
 response = requests.post("http://35.184.239.3:9090/stealing", files={"file": open("out/models/dummy_submission.onnx", "rb")}, headers={"token": "TOKEN", "seed": "SEED"})
