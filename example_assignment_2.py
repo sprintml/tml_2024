@@ -1,6 +1,7 @@
 import requests
 import torch
 import torch.nn as nn
+# Do install: conda install onnx
 import onnxruntime as ort
 import numpy as np
 
@@ -9,10 +10,14 @@ import numpy as np
 # Create a dummy model
 model = nn.Sequential(nn.Flatten(), nn.Linear(32*32*3, 1024))
 
+path = 'dummy_submission.onnx'
+TOKEN = "1" # to be changed according to your token (given to you for the assignments)
+SEED = "1" # to be changed according to your seed (from the API endpoint that you run locally)
+
 torch.onnx.export(
     model,
     torch.randn(1, 3, 32, 32),
-    "out/models/dummy_submission.onnx",
+    path,
     export_params=True,
     input_names=["x"],
 )
@@ -20,7 +25,7 @@ torch.onnx.export(
 #### Tests ####
 
 # (these are being ran on the eval endpoint for every submission)
-with open("out/models/dummy_submission.onnx", "rb") as f:
+with open(path, "rb") as f:
     model = f.read()
     try:
         stolen_model = ort.InferenceSession(model)
@@ -35,5 +40,5 @@ with open("out/models/dummy_submission.onnx", "rb") as f:
     assert out.shape == (1024,), "Invalid output shape"
 
 # Send the model to the server
-response = requests.post("http://34.71.138.79:9090/stealing", files={"file": open("out/models/dummy_submission.onnx", "rb")}, headers={"token": "TOKEN", "seed": "SEED"})
+response = requests.post("http://34.71.138.79:9090/stealing", files={"file": open(path, "rb")}, headers={"token": TOKEN, "seed": SEED})
 print(response.json())
