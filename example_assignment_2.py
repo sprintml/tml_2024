@@ -3,6 +3,41 @@ import torch
 import torch.nn as nn
 import onnxruntime as ort
 import numpy as np
+import json
+import io
+import base64
+
+### REQUESTING NEW API ###
+
+response = requests.get("http://34.71.138.79:9090" + "/stealing_launch", headers={"token": "TOKEN"})
+print(response.json())  # {"seed": "SEED", "port": PORT}
+
+### QUERYING THE API ###
+
+def model_stealing(images, port):
+    endpoint = "/query"
+    url = f"http://34.71.138.79:{port}" + endpoint
+    image_data = []
+    for img in images:
+        img_byte_arr = io.BytesIO()
+        img.save(img_byte_arr, format='PNG')
+        img_byte_arr.seek(0)
+        img_base64 = base64.b64encode(img_byte_arr.getvalue()).decode('utf-8')
+        image_data.append(img_base64)
+    
+    payload = json.dumps(image_data)
+    response = requests.get(url, files={"file": payload}, headers={"token": "TOKEN"})
+    if response.status_code == 200:
+        representation = response.json()["representations"]
+        return representation
+    else:
+        raise Exception(
+            f"Model stealing failed. Code: {response.status_code}, content: {response.json()}"
+        )
+
+dataset = torch.load("ModelStealingPub.pt")
+out = model_stealing([dataset.imgs[idx] for idx in np.random.permutation(1000)])
+print(out.shape)
 
 #### SUBMISSION ####
 
