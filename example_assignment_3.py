@@ -41,7 +41,7 @@ with open("out/models/dummy_submission.pt", "rb") as f:
 
 
 # Send the model to the server
-response = requests.post("http://34.71.138.79:9090/robustness", files={"file": open("out/models/dummy_submission.pt", "rb")}, headers={"token": "TOKEN", "model-name": "resnet18"})
+response = requests.post("http://35.239.75.232:9090/robustness", files={"file": open("out/models/dummy_submission.pt", "rb")}, headers={"token": "TOKEN", "model-name": "resnet18"})
 
 # Should be 400, the clean accuracy is too low
 print(response.json())
